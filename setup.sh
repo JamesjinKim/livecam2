@@ -194,7 +194,7 @@ success "제어 스크립트 생성 완료"
 
 # 7. 라즈베리파이 최적화
 info "라즈베리파이 최적화 설정 중..."
-BOOT_CONFIG="/boot/config.txt"
+BOOT_CONFIG="/boot/frimware/config.txt"
 
 if [ -f "$BOOT_CONFIG" ]; then
     # GPU 메모리 최소화
@@ -214,16 +214,19 @@ if [ -f "$BOOT_CONFIG" ]; then
     
     success "라즈베리파이 최적화 완료"
 else
-    warning "boot/config.txt를 찾을 수 없음 (라즈베리파이가 아닐 수 있음)"
+    warning "boot/firmware/config.txt를 찾을 수 없음 (라즈베리파이가 아닐 수 있음)"
 fi
 
 # 8. 방화벽 설정
 info "방화벽 설정 중..."
-sudo ufw allow 22/tcp   # SSH
-sudo ufw allow 80/tcp   # HTTP
-sudo ufw allow 8000/tcp # FastAPI 개발
-sudo ufw --force enable >/dev/null 2>&1
-success "방화벽 설정 완료"
+if command -v ufw >/dev/null 2>&1; then
+    #ufw가 있으면 설정
+    sudo ufw allow 22/tcp 80/tcp 8000/tcp
+    sudo ufw --force enable
+else
+    #ufw가 없으면 경고만 표시하고 계속 진행
+    echo "[WARNING] ufw가 설치되지 않음 - 방화벽 설정 건너뜀"
+fi
 
 echo ""
 echo "======================================"
